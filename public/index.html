@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter — time & invoices</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logo.svg" alt="Counter logo" class="brand-mark">
+        <div class="brand-title">
+          <h1>Counter</h1>
+          <span>Minimalist Flat 2.0</span>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="active" data-target="time-view">Time</button>
+        <button data-target="invoices-view">Invoices</button>
+        <button data-target="clients-view">Clients</button>
+        <button data-target="profile-view">Defaults</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <div>
+          <h2>Counter workspace</h2>
+          <p>Track hours, manage clients, and generate invoices in a minimalist flat layout. Start from a clean slate, then add your own details to run billing the way you need.</p>
+        </div>
+      </header>
+
+      <div class="metrics">
+        <div class="card">
+          <p>Total hours (month)</p>
+          <div class="metric-number" id="metric-hours">0h</div>
+          <p class="helper" id="metric-hours-helper">Pick a month to see the sum.</p>
+        </div>
+        <div class="card">
+          <p>Saved invoices</p>
+          <div class="metric-number" id="metric-invoices">0</div>
+          <p class="helper">PDF-ready invoices stored locally.</p>
+        </div>
+        <div class="card">
+          <p>Clients</p>
+          <div class="metric-number" id="metric-clients">0</div>
+          <p class="helper">Your address book stays on disk.</p>
+        </div>
+      </div>
+      <div class="progress-grid">
+        <div class="progress-card">
+          <div class="progress-header">Hours vs plan</div>
+          <div class="progress-meta" id="planned-hours-text">0h / 0h planned</div>
+          <div class="progress-bar"><span id="planned-hours-bar" style="width: 0%"></span></div>
+        </div>
+        <div class="progress-card">
+          <div class="progress-header">Month progress</div>
+          <div class="progress-meta" id="day-progress-text">Day 0 of 0</div>
+          <div class="progress-bar"><span id="day-progress-bar" style="width: 0%"></span></div>
+        </div>
+      </div>
+
+      <section id="time-view" class="view active">
+        <div class="surface">
+          <div class="section-grid">
+            <div>
+              <h3>Log hours</h3>
+              <p class="helper">Add the hours worked for a day. No preset rate or client is attached.</p>
+              <form id="entry-form" class="form-grid">
+                <label>Date
+                  <input type="date" name="date" required>
+                </label>
+                <label>Hours
+                  <input type="text" name="hours" inputmode="numeric" placeholder="HH:MM" required readonly>
+                </label>
+                <div class="actions">
+                  <button type="submit">Save entry</button>
+                  <button type="button" class="secondary" id="clear-month">Clear month</button>
+                </div>
+              </form>
+            </div>
+            <div>
+              <h3>Month focus</h3>
+              <p class="helper">Choose a month to filter the table and totals.</p>
+              <label>Month
+                <input type="month" id="month-filter">
+              </label>
+              <div class="notice" id="month-summary">No hours yet.</div>
+            </div>
+          </div>
+          <table class="table" id="entries-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Hours</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="invoices-view" class="view">
+        <div class="section-grid">
+          <div class="surface">
+            <h3>Build invoice</h3>
+            <p class="helper">Everything here is blank on purpose. Add what you need and save the invoice.</p>
+            <form id="invoice-form">
+              <div class="form-grid">
+                <label>Invoice number
+                  <input type="text" name="invoiceNumber" placeholder="INV-2024-001">
+                </label>
+                <label>Currency
+                  <input type="text" name="currency" placeholder="USD">
+                </label>
+                <label>Date of issue
+                  <input type="date" name="issueDate">
+                </label>
+                <label>Sale date
+                  <input type="date" name="saleDate">
+                </label>
+                <label>Due in days
+                  <input type="number" name="dueDays" min="0" placeholder="14">
+                </label>
+                <label>Place of issue
+                  <input type="text" name="place" placeholder="City or remote">
+                </label>
+              </div>
+
+              <h4>Work details</h4>
+              <div class="form-grid">
+                <label>Hours
+                  <input type="text" name="hours" inputmode="numeric" placeholder="HH:MM" readonly>
+                </label>
+                <label>Hourly rate
+                  <input type="number" name="rate" step="0.01" min="0" placeholder="0.00">
+                </label>
+                <label>VAT %
+                  <input type="number" name="vatPercent" step="0.01" min="0" placeholder="23">
+                </label>
+                <label>Description
+                  <input type="text" name="itemDesc" placeholder="Consulting services">
+                </label>
+                <label>Unit
+                  <input type="text" name="itemUnit" placeholder="h">
+                </label>
+                <label>Manual net (optional)
+                  <input type="number" name="manualNet" step="0.01" min="0" placeholder="Leave blank to auto-calc">
+                </label>
+                <label>Extra line description (optional)
+                  <input type="text" name="extraDesc" placeholder="Bonus or flat fee">
+                </label>
+                <label>Extra line net (optional)
+                  <input type="number" name="extraNet" step="0.01" min="0" placeholder="0.00">
+                </label>
+              </div>
+
+              <h4>Buyer</h4>
+              <div class="form-grid">
+                <label>Pick saved client
+                  <select name="clientSelect" id="invoice-client-select">
+                    <option value="">-- none --</option>
+                  </select>
+                </label>
+                <label>Buyer name
+                  <input type="text" name="buyerName" placeholder="Acme LLC">
+                </label>
+                <label>Buyer address
+                  <input type="text" name="buyerAddress" placeholder="Street and number">
+                </label>
+                <label>Buyer city
+                  <input type="text" name="buyerCity" placeholder="Postal code, city">
+                </label>
+                <label>Buyer tax ID
+                  <input type="text" name="buyerTaxId" placeholder="VAT / Tax ID">
+                </label>
+              </div>
+
+              <h4>Seller</h4>
+              <div class="form-grid">
+                <label>Seller name
+                  <input type="text" name="sellerName" placeholder="Your company or name">
+                </label>
+                <label>Seller address
+                  <input type="text" name="sellerAddress" placeholder="Street and number">
+                </label>
+                <label>Seller city
+                  <input type="text" name="sellerCity" placeholder="Postal code, city">
+                </label>
+                <label>Seller tax ID
+                  <input type="text" name="sellerTaxId" placeholder="VAT / Tax ID">
+                </label>
+                <label>Account number
+                  <input type="text" name="sellerAccount" placeholder="Bank account (optional)">
+                </label>
+                <label>Bank
+                  <input type="text" name="sellerBank" placeholder="Bank name (optional)">
+                </label>
+              </div>
+
+              <div class="surface" style="margin-top: 10px; background: var(--panel-alt);">
+                <div class="grid-tight">
+                  <div>
+                    <p class="helper">Net</p>
+                    <div class="metric-number" id="preview-net">0.00</div>
+                  </div>
+                  <div>
+                    <p class="helper">VAT</p>
+                    <div class="metric-number" id="preview-vat">0.00</div>
+                  </div>
+                  <div>
+                    <p class="helper">Gross</p>
+                    <div class="metric-number" id="preview-gross">0.00</div>
+                  </div>
+                </div>
+                <p class="helper" id="preview-helper">Fill hours, rate, and VAT to see totals.</p>
+              </div>
+
+              <div class="actions" style="margin-top: 12px;">
+                <button type="submit">Save invoice</button>
+                <button type="button" class="secondary" id="reset-invoice">Reset form</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="surface">
+            <div class="actions" style="justify-content: space-between;">
+              <div class="helper">Select invoices and generate PDFs. Files are written to <code>data/pdfs/</code>.</div>
+              <button type="button" id="generate-pdf" class="secondary">Generate PDFs</button>
+            </div>
+            <div id="invoice-list" class="grid-tight" style="margin-top: 12px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="clients-view" class="view">
+        <div class="section-grid">
+          <div class="surface">
+            <h3>Add or edit client</h3>
+            <form id="client-form">
+              <input type="hidden" name="clientId">
+              <div class="form-grid">
+                <label>Name
+                  <input type="text" name="clientName" placeholder="Client name" required>
+                </label>
+                <label>Address
+                  <input type="text" name="clientAddress" placeholder="Street and number">
+                </label>
+                <label>City
+                  <input type="text" name="clientCity" placeholder="Postal code, city">
+                </label>
+                <label>Tax ID
+                  <input type="text" name="clientTaxId" placeholder="VAT / Tax ID">
+                </label>
+              </div>
+              <div class="actions" style="margin-top: 8px;">
+                <button type="submit">Save client</button>
+                <button type="button" id="reset-client" class="secondary">Reset</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="surface">
+            <h3>Saved clients</h3>
+            <div id="clients-list" class="grid-tight"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="profile-view" class="view">
+        <div class="surface">
+          <h3>Defaults</h3>
+          <p class="helper">Defaults are stored in <code>data/store.json</code> on your machine. Everything here ships empty so nothing sensitive lands in git.</p>
+          <form id="profile-form">
+            <h4>Seller identity</h4>
+            <div class="form-grid">
+              <label>Name
+                <input type="text" name="sellerName" placeholder="Your company or name">
+              </label>
+              <label>Address
+                <input type="text" name="sellerAddress" placeholder="Street and number">
+              </label>
+              <label>City
+                <input type="text" name="sellerCity" placeholder="Postal code, city">
+              </label>
+              <label>Tax ID
+                <input type="text" name="sellerTaxId" placeholder="VAT / Tax ID">
+              </label>
+              <label>Account number
+                <input type="text" name="sellerAccount" placeholder="Bank account (optional)">
+              </label>
+              <label>Bank
+                <input type="text" name="sellerBank" placeholder="Bank name (optional)">
+              </label>
+            </div>
+
+            <h4>Invoice defaults</h4>
+            <div class="form-grid">
+              <label>Hourly rate
+                <input type="number" name="hourlyRate" step="0.01" min="0" placeholder="0.00">
+              </label>
+              <label>VAT %
+                <input type="number" name="vatPercent" step="0.01" min="0" placeholder="23">
+              </label>
+              <label>Currency
+                <input type="text" name="currency" placeholder="USD">
+              </label>
+              <label>Place of issue
+                <input type="text" name="invoicePlace" placeholder="City or remote">
+              </label>
+              <label>Item description
+                <input type="text" name="itemDescription" placeholder="Consulting services">
+              </label>
+              <label>Unit
+                <input type="text" name="itemUnit" placeholder="h">
+              </label>
+              <label>Due days
+                <input type="number" name="dueDays" min="0" placeholder="14">
+              </label>
+            </div>
+
+            <div class="actions" style="margin-top: 10px;">
+              <button type="submit">Save defaults</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

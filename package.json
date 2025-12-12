@@ -1,0 +1,10 @@
+{
+  "name": "counter-flat",
+  "version": "1.0.0",
+  "description": "Minimalist flat time tracker and invoice generator.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "Polyform-Noncommercial-1.0.0"
+}
